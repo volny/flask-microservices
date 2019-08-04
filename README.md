@@ -13,7 +13,8 @@ consisting of 4 "microservices"
 
 ### users db
 
-* install users db: `docker-compose up -d --build users-db`
+* install users db: `docker-compose up -d --build users-db`  
+  (or just install all services at once with `docker-compose up -d --build`)
 * check if it worked `docker exec -ti users-db psql -U postgres -W`
 
 ### users app
@@ -43,3 +44,10 @@ docker-compose up -d --build web-service
 ```
 
 * test it works by visiting `http://localhost:9000`
+
+### swagger
+
+* `docker-compose up -d --build swagger`
+* check the auto-generated docs at `http://localhost:8080/`
+
+
