@@ -11,5 +11,23 @@ consisting of 4 "microservices"
 
 ## Steps
 
+### users db
+
 * install users db: `docker-compose up -d --build users-db`
 * check if it worked `docker exec -ti users-db psql -U postgres -W`
+
+### users app
+
+* `docker-compose up -d --build users-service`
+* start, seed, test
+
+```sh
+# create and seed the db
+docker-compose run users-service python manage.py recreate_db
+docker-compose run users-service python manage.py seed_db
+
+# run unit and integration tests
+docker-compose run users-service python manage.py test
+```
+
+
