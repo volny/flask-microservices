@@ -30,4 +30,16 @@ docker-compose run users-service python manage.py seed_db
 docker-compose run users-service python manage.py test
 ```
 
+### client
 
+* build
+
+```sh
+# add env variable
+export REACT_APP_USERS_SERVICE_URL=localhost
+
+# build and run:
+docker-compose up -d --build web-service
+```
+
+* test it works by visiting `http://localhost:9000`
