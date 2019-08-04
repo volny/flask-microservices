@@ -1,0 +1,68 @@
+language: node_js
+node_js: '7'
+
+before_install:
+  - stty cols 80
+
+dist: trusty
+sudo: required
+
+addons:
+  apt:
+    sources:
+     - google-chrome
+    packages:
+     - google-chrome-stable
+
+services:
+  - docker
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.11.2
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - USERS=flask-microservices-users
+    - USERS_REPO=https://github.com/realpython/$USERS.git
+    - USERS_DB=flask-microservices-users_db
+    - USERS_DB_REPO=https://github.com/realpython/$USERS.git#master:project/db
+    - CLIENT=flask-microservices-client
+    - CLIENT_REPO=https://github.com/realpython/$CLIENT.git
+    - SWAGGER=flask-microservices-swagger
+    - SWAGGER_REPO=https://github.com/realpython/$SWAGGER.git
+    - EVAL=flask-microservices-eval
+    - EVAL_REPO=https://github.com/realpython/$EVAL.git
+    - NGINX=flask-microservices-nginx
+    - NGINX_REPO=https://github.com/realpython/flask-microservices-main.git#master:nginx
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+before_script:
+  - export TEST_URL=http://127.0.0.1
+  - export REACT_APP_USERS_SERVICE_URL=http://127.0.0.1
+  - export REACT_APP_EVAL_SERVICE_URL=http://127.0.0.1
+  - export REACT_APP_API_GATEWAY_URL=https://c0rue3ifh4.execute-api.us-east-1.amazonaws.com/v1/execute
+  - export SECRET_KEY=my_precious
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sleep 3
+  - bash ./docker_build.sh
+
+script:
+  - docker-compose -f docker-compose-ci.yml run users-service python manage.py test
+  - docker-compose -f docker-compose-ci.yml run users-service python manage.py recreate_db
+  - docker-compose -f docker-compose-ci.yml run eval-service python manage.py test
+  - docker-compose -f docker-compose-ci.yml run eval-service python manage.py recreate_db
+  - docker-compose -f docker-compose-ci.yml run eval-service python manage.py seed_db
+  - testcafe chrome e2e
+
+after_script:
+  - docker-compose down
+
+after_success:
+  - bash ./docker_push.sh
+  - bash ./docker_deploy.sh
+  - bash ./docker_deploy_prod.sh
