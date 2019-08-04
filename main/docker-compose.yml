@@ -5,7 +5,7 @@ services:
   users-db:
     container_name: users-db
     build:
-      context: ../flask-microservices-users/project/db
+      context: ../users/project/db
     ports:
       - 5435:5432  # expose ports - HOST:CONTAINER
     environment:
@@ -17,10 +17,10 @@ services:
   users-service:
     container_name: users-service
     build:
-      context: ../flask-microservices-users
+      context: ../users
       dockerfile: Dockerfile-local
     volumes:
-      - '../flask-microservices-users:/usr/src/app'
+      - '../users:/usr/src/app'
     ports:
       - 5001:5000 # expose ports - HOST:CONTAINER
     environment:
@@ -52,10 +52,10 @@ services:
   web-service:
     container_name: web-service
     build:
-      context: ../flask-microservices-client
+      context: ../client
       dockerfile: Dockerfile-local
     volumes:
-      - '../flask-microservices-client:/usr/src/app'
+      - '../client:/usr/src/app'
       - '/usr/src/app/node_modules'
     ports:
       - '9000:9000' # expose ports - HOST:CONTAINER
@@ -73,11 +73,11 @@ services:
   swagger:
     container_name: swagger
     build:
-      context: ../flask-microservices-swagger
+      context: ../swagger
     ports:
       - '8080:8080' # expose ports - HOST:CONTAINER
     environment:
-      - API_URL=https://raw.githubusercontent.com/realpython/flask-microservices-swagger/master/swagger.json
+      - API_URL=https://raw.githubusercontent.com/volny/flask-microservices/master/swagger/swagger.json
     depends_on:
       users-service:
         condition: service_started
@@ -85,7 +85,7 @@ services:
   eval-service:
     container_name: eval-service
     build:
-      context: ../flask-microservices-eval
+      context: ../eval
       dockerfile: Dockerfile-local
     volumes:
       - '../flask-microservices-eval:/usr/src/app'
@@ -108,7 +108,7 @@ services:
   eval-db:
     container_name: eval-db
     build:
-      context: ../flask-microservices-eval/project/db
+      context: ../eval/project/db
     ports:
         - 5436:5432  # expose ports - HOST:CONTAINER
     environment:
